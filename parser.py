@@ -3,17 +3,16 @@
 import tail
 import shlex
 from httplib2 import Http
-from timeit import Timer
 from datetime import datetime
 
-# global variable for server name that will be taking the traffic                                                   
+# global variable for server name that will be taking the traffic
 server_name = "http://api-staging.pbs.org"
 
 def print_line(txt):
     ''' Prints received text '''
     loglist = shlex.split(txt)
     req = loglist[4]
-    req2 = req.split('=',1)[1]
+    req2 = req.split('=', 1)[1]
     req3 = req2.split()[1]
     # getting the log's "process time" in seconds
     origin_resp_time = float(loglist[3].split('=')[1])/1000000.
@@ -21,7 +20,9 @@ def print_line(txt):
     print req3
 
     before = datetime.now()
-    (resp, content) = Http().request("%s%s" % (server_name, req3))
+    target_url = "%(server)s%(path)s" % {'server':server_name, 'path':req3 }
+    add_headers = {'Host': server_name}
+    (resp, content) = Http().request(target_url, headers=add_headers)
     after = datetime.now()
     rtime_seconds = (after - before).total_seconds()
     print 'origin: \t%s %s' % (origin_resp_status, origin_resp_time)

@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/bin/env python2.6
 
 import tail
 import shlex
@@ -6,9 +6,12 @@ from httplib2 import Http
 from datetime import datetime
 
 # global variable for server that will be taking the traffic
-DITTO_TARGET = 'http://api.pbs.org'
+DITTO_TARGET = 'http://127.0.0.1/'
 # used to comminucate to target which hostname to use
-DITTO_TARGET_HOSTNAME = "api.pbs.org"
+DITTO_TARGET_HOSTNAME = "example.com"
+
+def get_total_seconds(td):
+    return (td.microseconds + (td.seconds + td.days * 24 * 3600) * 1e6) / 1e6
 
 def process_log_line(txt):
     '''
@@ -49,12 +52,12 @@ def process_log_line(txt):
     (resp, content) = Http().request(target_url, headers=add_headers)
     print 'got response: %s'
     after = datetime.now()
-    rtime_seconds = (after - before).total_seconds()
+    rtime_seconds = get_total_seconds(after - before)
     print 'origin: \t%s %s' % (origin_resp_status, origin_resp_time)
     print 'staging:\t%s %s\n' % (resp.status, rtime_seconds)
 
 
-t = tail.Tail('/var/log/httpd/coveapi_access.log')
+t = tail.Tail('/path/to/access.log')
 t.register_callback(process_log_line)
 t.follow(s=1)
 

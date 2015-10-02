@@ -48,29 +48,29 @@ class Tail(object):
         Arguments:
             s - Number of seconds to wait between each iteration; Defaults to 1. '''
         readBuffer = StringIO()
-        with open(self.tailed_file, 'rb') as file_:
-            file_.seek(0, os.SEEK_END)
-            while True:
-                readBuffer.write(file_.read())
-                readBuffer.seek(0)
-                complete = True
-                for line in readBuffer:
-                    if not line.endswith(os.linesep): 
-                        complete = False
-                        break
+        file_ = open(self.tailed_file, 'rb')
+        file_.seek(0, os.SEEK_END)
+        while True:
+            readBuffer.write(file_.read())
+            readBuffer.seek(0)
+            complete = True
+            for line in readBuffer:
+                if not line.endswith(os.linesep): 
+                    complete = False
+                    break
 
-                    self.callback(line)
-                    time.sleep(s)
+                self.callback(line)
+                time.sleep(s)
 
-                # Catch the slop if the last line isn't complete
-                readBuffer.truncate(0)
-                if not complete:
-                    if len(line) > self.max_line_length:
-                        raise TailError("Line exceeds maximum allowed line length")
+            # Catch the slop if the last line isn't complete
+            readBuffer.truncate(0)
+            if not complete:
+                if len(line) > self.max_line_length:
+                    raise TailError("Line exceeds maximum allowed line length")
 
-                    readBuffer.write(line)
+                readBuffer.write(line)
                 
-                time.sleep(poll_time)
+            time.sleep(poll_time)
 
     def register_callback(self, func):
         ''' Overrides default callback function to provided function. '''
